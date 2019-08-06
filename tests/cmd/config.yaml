@@ -1,0 +1,3 @@
+host: http://tests-storage
+port: 7001
+prefix: /kv

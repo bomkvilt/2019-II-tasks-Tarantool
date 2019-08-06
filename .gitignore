@@ -1,0 +1,15 @@
+# 'hidden' directories
+.vscode/
+.runtime/
+
+# tmp files
+*.tmp
+~$*
+
+# golang by generated files
+go.sum
+Debug
+debug
+
+# misc
+vendor/
