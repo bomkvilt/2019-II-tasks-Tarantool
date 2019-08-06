@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tests
+  labels:
+    app: tests
+spec:
+  containers:
+    - name: tests
+      image: tests-tests:latest
+      imagePullPolicy: IfNotPresent
+    - name: storage
+      image: tests-storage:latest
+      imagePullPolicy: IfNotPresent

@@ -3,7 +3,6 @@ FROM golang:alpine as builder
 ENV GO111MODULE=on
 RUN apk add --update --no-cache git;
 
-# get packages
 WORKDIR /bootcamp
 COPY ./go.mod .
 RUN go mod download;
@@ -16,5 +15,7 @@ RUN go build		\
 
 # run tests
 FROM alpine:latest
-COPY --from=builder ./bin/tests ./bin/tests
+WORKDIR /bootcamp
+COPY 				'./tests/cmd/config.yaml' 	'./tests/cmd/config.yaml'
+COPY --from=builder '/bootcamp/bin/tests' 		'./bin/tests'
 CMD './bin/tests'
