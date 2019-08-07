@@ -51,7 +51,8 @@ function AddKey(req)
         return { status = 409 }
     end
     
-    log.info('add_key: success')
+    log.info('add_key: key "'..msg.key..'" added')
+    return { status = 200 }
 end
 
 function UpdateKey(req)
@@ -64,10 +65,12 @@ function UpdateKey(req)
 
     local res = box.space.storage:update(key, {{'=', 2, msg.value}})
     if res == nil then
-        log.info('get_key: key "'..key..'" not extsts')
+        log.info('update_key: key "'..key..'" not extsts')
         return { status = 404 }
     end
-    log.info('update_key: success')
+    
+    log.info('update_key: key "'..key..'" updated')
+    return { status = 200 }
 end
 
 function GetKey(req)
@@ -77,8 +80,8 @@ function GetKey(req)
         log.info('get_key: key "'..key..'" not extsts')
         return { status = 404 }
     end
-
-    log.info('get_key: success')
+    
+    log.info('get_key: key "'..key..'" found')
     return { status = 200, body = json.encode(res[1][2]) }
 end
 
@@ -88,8 +91,8 @@ function DeleteKey(req)
         log.info('delete_key: key "'..key..'" not extsts')
         return { status = 404 }
     end
-
-    log.info('delete_key: success')
+    
+    log.info('delete_key: key "'..key..'" deleted')
     return { status = 200 }
 end
 
