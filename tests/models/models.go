@@ -15,7 +15,11 @@ type Message struct {
 }
 
 // ToReader marshales self to JSON and places to to a reader
-func (msg Message) ToReader() io.Reader {
+func (msg *Message) ToReader() io.Reader {
+	if msg == nil {
+		return nil
+	}
+
 	data, err := msg.MarshalJSON()
 	if err != nil {
 		panic(err)

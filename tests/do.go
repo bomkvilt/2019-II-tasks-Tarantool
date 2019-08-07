@@ -14,17 +14,12 @@ func (gn *Generator) checkCode(resp *http.Response, code int) bool {
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		gn.panicIf("body read", err)
-	} else {
-		_, fn, line, _ := runtime.Caller(2)
-		fmt.Printf("unexpected code (%s:%d): \n{\ncode: %d (whanted: %d),\nbody: %s\n}\n",
-			fn, line,
-			resp.StatusCode,
-			code,
-			data,
-		)
-	}
+	gn.panicIf("body read", err)
+
+	// line that call do<...>()
+	_, fn, line, _ := runtime.Caller(2)
+	fmt.Printf("unexpected code (%s:%d): \n{\ncode: %d (expected: %d),\nbody: %s\n}\n",
+		fn, line, resp.StatusCode, code, data)
 	return false
 }
 
@@ -38,13 +33,11 @@ func (gn *Generator) doGet(path string, code int, exp *models.Object) bool {
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		gn.panicIf("body read", err)
-		return false
-	}
+	gn.panicIf("body read", err)
 
 	tkn := &models.Object{}
 	gn.panicIf("unmarshal", tkn.UnmarshalJSON(data))
+
 	return gn.compare(exp, tkn)
 }
 

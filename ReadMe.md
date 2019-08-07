@@ -33,17 +33,22 @@ Solution consists of two docker containers:
 - KV-storage (/storage)
 - API test   (/test)
 
-The containers could be built with <code>./control.sh -b</code> command.
-
-# TODO::
-
 ### Storage
-Realised with use of Tarantool + Tarantool.http.
+Realised with use of pure Tarantool with http module.
 
 Notes:
 - entity 'id' hasn't been specificated, so id == key;
-- as get gets sent throw uri it can cosists from [a-z, A-Z, -, _] letters only;
+- since a key gets sent through url it can cosists from [a-z, A-Z, -, _] letters only;
+- log writes to '/opt/tarantool/storage.log' without stdout mirroring;
 
+To build it (tests-storage:latest) run <code>./control.sh -b</code> command.
 
 ### Tets
-Scripted and randomised api tests. 
+Golang application connects to a local storage (configures) 
+and executes scripted test cases.
+
+To execute tests run <code>./control.sh -t</code> command.
+
+The command will deploy a helm package with a pod consits off stateless storage (no mounts) and tester images. Tester's ouput will be placed to the console.
+
+To remove the package call <code>./control.sh -r</code>.

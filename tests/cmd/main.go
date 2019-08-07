@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"sln/tests"
 )
 
@@ -9,5 +10,7 @@ func main() {
 		conf = tests.ReadConfig("./tests/cmd/config.yaml")
 		gen  = tests.NewGenerator(conf)
 	)
-	gen.PlayScripts()
+	if !gen.PlayScripts() {
+		os.Exit(1)
+	}
 }

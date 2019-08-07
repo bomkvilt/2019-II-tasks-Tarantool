@@ -5,22 +5,22 @@ import (
 	"net/http"
 	"reflect"
 	"sln/tests/models"
+	"strings"
 
 	"github.com/google/uuid"
 )
 
 //go:generate easyjson -output_filename ./models/jsons.gen.go ./models
-//go:generate easyjson -output_filename jsons.gen.go .
 
 // --------------------------| generator |-------------------------- \
 
-// Generator generates test cases for required key-value storage
+// Generator is a test script launcher
 type Generator struct {
 	scripts []func() bool
 	conf    Config
 }
 
-// NewGenerator creates a new test generator
+// NewGenerator creates a new generator
 func NewGenerator(conf Config) *Generator {
 	gn := &Generator{
 		scripts: []func() bool{},
@@ -37,16 +37,17 @@ func NewGenerator(conf Config) *Generator {
 // -----------|
 
 // PlayScripts plays scripted test cases
-func (gn *Generator) PlayScripts() {
+func (gn *Generator) PlayScripts() bool {
 	fmt.Println("Playing scripts...")
 	for _, script := range gn.scripts {
 		if script() {
 			continue
 		}
-		fmt.Println("Error occured!")
-		return
+		fmt.Println("Error occurred!")
+		return false
 	}
-	fmt.Println("Scripts finished sucessfully!")
+	fmt.Println("Scripts finished successfully!")
+	return true
 }
 
 func (gn *Generator) addScript(script func() bool) {
@@ -55,6 +56,7 @@ func (gn *Generator) addScript(script func() bool) {
 
 // -----------| helpers
 
+// genKey generates a rundom key
 func (gn *Generator) genKey() string {
 	key := uuid.New().String()
 	key = key[0:30]
@@ -76,24 +78,24 @@ func (gn *Generator) post(path string, msg *models.Message) *http.Response {
 }
 
 func (gn *Generator) put(path string, msg *models.Message) *http.Response {
-	fmt.Printf("put to '%s' message '%+v'\n", path, msg)
-	req, err := http.NewRequest("PUT", path, msg.ToReader())
-	gn.panicIf("new request", err)
-
-	client := http.Client{}
-	resp, err := client.Do(req)
-	gn.panicIf("put", err)
-	return resp
+	return gn.extraMethod("put", path, msg)
 }
 
 func (gn *Generator) delete(path string) *http.Response {
-	fmt.Printf("delete '%s'\n", path)
-	req, err := http.NewRequest("DELETE", path, nil)
+	return gn.extraMethod("delete", path, nil)
+}
+
+func (gn *Generator) extraMethod(method, path string, msg *models.Message) *http.Response {
+	method = strings.ToUpper(method)
+	tag := strings.ToLower(method)
+
+	fmt.Printf("%s path='%s' message='%v'\n", tag, path, msg)
+	req, err := http.NewRequest(method, path, msg.ToReader())
 	gn.panicIf("new request", err)
 
 	client := http.Client{}
 	resp, err := client.Do(req)
-	gn.panicIf("delete", err)
+	gn.panicIf(tag, err)
 	return resp
 }
 
