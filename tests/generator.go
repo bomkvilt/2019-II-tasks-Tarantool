@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"runtime"
 	"sln/tests/models"
 
 	"github.com/google/uuid"
@@ -28,6 +27,10 @@ func NewGenerator(conf Config) *Generator {
 		conf:    conf,
 	}
 	gn.addScript(gn.scriptSimpleInsertion)
+	gn.addScript(gn.scriptNoKey)
+	gn.addScript(gn.scriptKeyAlreadyExists)
+	gn.addScript(gn.scriptInvalidValue)
+	gn.addScript(gn.scriptValidValue)
 	return gn
 }
 
@@ -95,11 +98,6 @@ func (gn *Generator) delete(path string) *http.Response {
 }
 
 // -----------|
-
-func (gn *Generator) unexpectedCode(code int) {
-	_, fn, line, _ := runtime.Caller(1)
-	fmt.Printf("unexpected code (%s:%d):. %v\n", fn, line, code)
-}
 
 func (gn *Generator) panicIf(tag string, err error) {
 	if err == nil {

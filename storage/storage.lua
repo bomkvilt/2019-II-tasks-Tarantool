@@ -23,27 +23,30 @@ function getMessage(req, fields)
     local rawData = req:read()
     local ok, msg = pcall(json.decode, rawData)
     if not ok then
-        return nil
+        return nil, rawData
     end
 
     for k, v in pairs(fields) do 
-        if not msg[v] then
-            return nil
+        if msg[v] == nil then
+            return nil, rawData
         end
     end
-    return msg
+    
+    return msg, rawData
 end
 
 -- -----------| handlers |----------- --
 function AddKey(req)
-    local msg = getMessage(req, {'key', 'value'})
-    if not msg then
-        log.info('add_key: incorrect message:. ' .. req:read())
+    local msg, raw = getMessage(req, {'key', 'value'})
+    if msg == nil then
+        log.info('add_key: incorrect message:. '..raw)
         return { status = 400 }
     end
 
-    local res = box.space.storage:insert{msg.key, msg.value}
-    if res == ER_TUPLE_FOUND then
+    local ok, res = pcall(function() 
+        return box.space.storage:insert{msg.key, msg.value}
+    end)
+    if not ok or res == ER_TUPLE_FOUND then
         log.info('add_key: key already exists')
         return { status = 409 }
     end
@@ -53,9 +56,9 @@ end
 
 function UpdateKey(req)
     local key = req:stash('id')
-    local msg = getMessage(req, {'key'})
-    if not msg then
-        log.info('update_key: incorrect message ('..key..'):. ' .. req:read())
+    local msg, raw = getMessage(req, {'value'})
+    if msg == nil then
+        log.info('update_key: incorrect message ('..key..'):. '..raw)
         return { status = 400 }
     end
 
