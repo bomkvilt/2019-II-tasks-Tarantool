@@ -1,5 +1,6 @@
 # Tarantool team intern task
 
+---
 ## Task
 
 Requirements:
@@ -37,7 +38,11 @@ The containers could be built with <code>./control.sh -b</code> command.
 # TODO::
 
 ### Storage
-Realised with use of NGinx + Tarantool upstream module + Tarantool.
+Realised with use of Tarantool + Tarantool.http.
+
+Notes:
+- entity 'id' hasn't been specificated, so id == key;
+- as get gets sent throw uri it can cosists from [a-z, A-Z, -, _] letters only;
 
 
 ### Tets

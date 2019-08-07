@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"runtime"
 	"sln/tests/models"
 
 	"github.com/google/uuid"
@@ -36,9 +37,11 @@ func NewGenerator(conf Config) *Generator {
 func (gn *Generator) PlayScripts() {
 	fmt.Println("Playing scripts...")
 	for _, script := range gn.scripts {
-		if !script() {
-			break
+		if script() {
+			continue
 		}
+		fmt.Println("Error occured!")
+		return
 	}
 	fmt.Println("Scripts finished sucessfully!")
 }
@@ -56,18 +59,21 @@ func (gn *Generator) genKey() string {
 }
 
 func (gn *Generator) get(path string) *http.Response {
+	fmt.Printf("get '%s'\n", path)
 	resp, err := http.Get(path)
 	gn.panicIf("get", err)
 	return resp
 }
 
 func (gn *Generator) post(path string, msg *models.Message) *http.Response {
+	fmt.Printf("post to '%s' message '%+v'\n", path, msg)
 	resp, err := http.Post(path, "application/json", msg.ToReader())
 	gn.panicIf("post", err)
 	return resp
 }
 
 func (gn *Generator) put(path string, msg *models.Message) *http.Response {
+	fmt.Printf("put to '%s' message '%+v'\n", path, msg)
 	req, err := http.NewRequest("PUT", path, msg.ToReader())
 	gn.panicIf("new request", err)
 
@@ -78,6 +84,7 @@ func (gn *Generator) put(path string, msg *models.Message) *http.Response {
 }
 
 func (gn *Generator) delete(path string) *http.Response {
+	fmt.Printf("delete '%s'\n", path)
 	req, err := http.NewRequest("DELETE", path, nil)
 	gn.panicIf("new request", err)
 
@@ -90,7 +97,8 @@ func (gn *Generator) delete(path string) *http.Response {
 // -----------|
 
 func (gn *Generator) unexpectedCode(code int) {
-	fmt.Printf("unexpected code:. %v", code)
+	_, fn, line, _ := runtime.Caller(1)
+	fmt.Printf("unexpected code (%s:%d):. %v\n", fn, line, code)
 }
 
 func (gn *Generator) panicIf(tag string, err error) {

@@ -12,3 +12,4 @@ spec:
     - name: storage
       image: tests-storage:latest
       imagePullPolicy: IfNotPresent
+  terminationGracePeriodSeconds: 0

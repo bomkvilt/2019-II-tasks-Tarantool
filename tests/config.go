@@ -41,6 +41,7 @@ func ReadConfig(path string) Config {
 
 // GetURL returns a ubs URL to a testing storage
 func (cf *Config) GetURL(relative ...string) string {
-	path := cf.Host + ":" + strconv.Itoa(cf.Port) + "/" + cf.Prefix + "/" + strings.Join(relative, "/")
+	path := strings.Replace("/"+cf.Prefix+"/"+strings.Join(relative, "/"), "//", "/", -1)
+	path = cf.Host + ":" + strconv.Itoa(cf.Port) + path
 	return path
 }

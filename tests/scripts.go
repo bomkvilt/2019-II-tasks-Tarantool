@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"io/ioutil"
 	"sln/tests/models"
 )
 
@@ -17,70 +16,33 @@ func (gn *Generator) scriptSimpleInsertion() bool {
 			Data: "Intel",
 		}
 	)
-
 	// check the key not exists
-	resp := gn.get(kpath)
-	if resp.StatusCode != 404 {
-		gn.unexpectedCode(resp.StatusCode)
+	if !gn.doGet(kpath, 404, nil) {
 		return false
 	}
-
 	// insert the key
-	resp = gn.post(rpath, &models.Message{
+	if !gn.doPost(rpath, 200, &models.Message{
 		Key:   key,
 		Value: value,
-	})
-	if resp.StatusCode != 200 {
-		gn.unexpectedCode(resp.StatusCode)
+	}) {
 		return false
 	}
-
 	// get it's value
-	resp = gn.get(kpath)
-	if resp.StatusCode != 200 {
-		gn.unexpectedCode(resp.StatusCode)
+	if !gn.doGet(kpath, 200, value) {
 		return false
 	}
-	if data, err := ioutil.ReadAll(resp.Body); err != nil {
-		stored := models.Object{}
-		err = stored.UnmarshalJSON(data)
-		gn.panicIf("unmarshal", err)
-		gn.compare(value, stored)
-	} else {
-		gn.panicIf("body read", err)
-	}
-
 	// change stored data
 	value.Name = "John"
-	resp = gn.post(kpath, &models.Message{
-		Value: value,
-	})
-	if resp.StatusCode != 200 {
-		gn.unexpectedCode(resp.StatusCode)
+	if !gn.doPut(kpath, 200, &models.Message{Value: value}) {
 		return false
 	}
-
 	// check the value
-	resp = gn.get(kpath)
-	if resp.StatusCode != 200 {
-		gn.unexpectedCode(resp.StatusCode)
+	if !gn.doGet(kpath, 200, value) {
 		return false
 	}
-	if data, err := ioutil.ReadAll(resp.Body); err != nil {
-		stored := models.Object{}
-		err = stored.UnmarshalJSON(data)
-		gn.panicIf("unmarshal", err)
-		gn.compare(value, stored)
-	} else {
-		gn.panicIf("body read", err)
-	}
-
 	// delete the value
-	resp = gn.delete("kpath")
-	if resp.StatusCode != 200 {
-		gn.unexpectedCode(resp.StatusCode)
+	if !gn.doDelete(kpath, 200) {
 		return false
 	}
-
 	return true
 }

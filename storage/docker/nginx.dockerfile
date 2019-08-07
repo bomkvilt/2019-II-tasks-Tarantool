@@ -1,2 +1,0 @@
-from tarantool/tarantool-nginx
-
