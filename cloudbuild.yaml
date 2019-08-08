@@ -1,0 +1,4 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/storage', '-f', './storage/docker/storage.dockerfile', '.' ]
+images: ['gcr.io/$PROJECT_ID/storage']

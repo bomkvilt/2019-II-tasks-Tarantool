@@ -1,1 +1,0 @@
-FROM tests-storage:latest

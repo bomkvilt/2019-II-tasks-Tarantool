@@ -39,9 +39,9 @@ Realised with use of pure Tarantool with http module.
 Notes:
 - entity 'id' hasn't been specificated, so id == key;
 - since a key gets sent through url it can cosists from [a-z, A-Z, -, _] letters only;
-- log writes to '/opt/tarantool/storage.log' without stdout mirroring;
+- log writes to '/opt/tarantool/storage.log' with stdout mirroring;
 
-To build it (tests-storage:latest) run <code>./control.sh -b</code> command.
+To build it localy (tests-storage:latest) run <code>./control.sh -b</code> command.
 
 ### Tets
 Golang application connects to a local storage (configures) 
@@ -52,3 +52,10 @@ To execute tests run <code>./control.sh -t</code> command.
 The command will deploy a helm package with a pod consits off stateless storage (no mounts) and tester images. Tester's ouput will be placed to the console.
 
 To remove the package call <code>./control.sh -r</code>.
+
+### deployment
+The projects builds and deploys at GKP (<code>./control.sh -d</code>).
+
+Notes:
+- Being deployed non-localy, Tarantool.http refuses any direct http connection so it's required to use an intermediate http server (currently i've used Nginx); I've spent about 10 hours to detect it with tries to find the bug-a-feature...
+- Currently the project mounts no value to '/var/lib/tarantool'

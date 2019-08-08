@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage
+spec:
+  selector:
+    matchLabels:
+      app: storage
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: storage
+    spec:
+      containers:
+      - name: storage
+        image: gcr.io/tests-tarantool-249122/storage:latest
+        env:
+        - name: PORT
+          value: '7001'
+        resources:
+          requests:
+            cpu: 100m
+            memory: 700Mi
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx
+          readOnly: true
+          name: nginx-conf
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+          items:
+            - key:  nginx.conf
+              path: nginx.conf

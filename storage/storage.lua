@@ -1,6 +1,7 @@
 #!/usr/bin/env tarantool
-local log  = require('log')
-local json = require('json')
+local log   = require('log')
+local json  = require('json')
+local fiber = require('fiber')
 
 -- -----------| database |----------- --
 box.cfg{
@@ -97,7 +98,22 @@ function DeleteKey(req)
 end
 
 -- -----------| server |----------- --
-require('http.server').new('127.0.0.1', 7001)
+function getPort()
+    local port = os.getenv('PORT')
+    if port == nil then
+        port = 7001 
+    end
+    return port
+end
+
+fiber.create(function() 
+    while true do
+        log.info("still alive")
+        fiber.sleep(10)
+    end
+end)
+
+require('http.server').new('127.0.0.1', getPort())
     :route({ path = '/kv'    , method = 'POST'}, AddKey)
     :route({ path = '/kv/:id', method = 'GET' }, GetKey)
     :route({ path = '/kv/:id', method = 'PUT' }, UpdateKey)
